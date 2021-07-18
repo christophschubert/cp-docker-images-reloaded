@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi8/ubi-minimal:8.4-205
+FROM cp-base-reloaded
 
 EXPOSE 9092
 
