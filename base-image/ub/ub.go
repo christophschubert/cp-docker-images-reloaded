@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 )
 
@@ -21,8 +22,16 @@ func convertEnvVars(prefix string) {
 	}
 }
 
+func listenersFromAdvertisedListeners(listeners string) string {
+	re := regexp.MustCompile("://(.*?):")
+	return re.ReplaceAllString(listeners, "://0.0.0.0:")
+}
+
 func main() {
 	if os.Args[1] == "envToProp" {
 		convertEnvVars(os.Args[2])
+	}
+	if os.Args[1] == "listeners" {
+		fmt.Println(listenersFromAdvertisedListeners(os.Args[2]))
 	}
 }
