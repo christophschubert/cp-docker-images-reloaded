@@ -47,12 +47,12 @@ services:
     image: kmin
     container_name: broker-1
     ports:
-      - "19092:9092"
+      - "19092:19092"
     environment:
       KAFKA_PROCESS_ROLES: broker
       KAFKA_NODE_ID: 11
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
-      KAFKA_LISTENERS: INTERNAL://:9091,EXTERNAL://:9092
+      KAFKA_LISTENERS: INTERNAL://:9091,EXTERNAL://:19092
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://broker-1:9091,EXTERNAL://localhost:19092
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER #contrary to the comments in broker.properties, I also needed to configure this for the broker to start up
@@ -65,12 +65,12 @@ services:
     image: kmin
     container_name: broker-2
     ports:
-      - "29092:9092"
+      - "29092:29092"
     environment:
       KAFKA_PROCESS_ROLES: broker
       KAFKA_NODE_ID: 12
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
-      KAFKA_LISTENERS: INTERNAL://:9091,EXTERNAL://:9092
+      KAFKA_LISTENERS: INTERNAL://:9091,EXTERNAL://:29092
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://broker-2:9091,EXTERNAL://localhost:29092
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER #contrary to the comments in broker.properties, I also needed to configure this for the broker to start up
@@ -83,12 +83,12 @@ services:
     image: kmin
     container_name: broker-3
     ports:
-      - "39092:9092"
+      - "39092:39092"
     environment:
       KAFKA_PROCESS_ROLES: broker
       KAFKA_NODE_ID: 13
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
-      KAFKA_LISTENERS: INTERNAL://:9091,EXTERNAL://:9092
+      KAFKA_LISTENERS: INTERNAL://:9091,EXTERNAL://:39092
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://broker-3:9091,EXTERNAL://localhost:39092
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER #contrary to the comments in broker.properties, I also needed to configure this for the broker to start up
