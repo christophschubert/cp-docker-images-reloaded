@@ -2,7 +2,7 @@
 
 echo "Checking for required configuration settings..."
 
-#see https://wiki.bash-hackers.org/syntax/pe#indirection for the origin of this
+
 function exit_if_not_set {
   param=$1
   if [[ -z ${!param} ]]
@@ -12,32 +12,39 @@ function exit_if_not_set {
   fi
 }
 
-CLUSTER_ID=1_TU6DOhT9uVDTk3B3E8Zg #TODO: get cluster-id from config.
 
 # check whether we are running in KRAFT mode (this is done using the process.roles property)
-if [[ -n "$KAFKA_PROCESS_ROLES" ]]
+if [[ -z "$KAFKA_PROCESS_ROLES" ]]
 then
   echo "> configuring ZooKeeper mode"
   exit_if_not_set KAFKA_ZOOKEEPER_CONNECT
-  # set KRaft-mode = false
+  LEGACY_MODE="true"
 else
   echo "> configuring KRaft controller mode"
   # as the zookeeper setting will eventually go away, we take KRaft as default
+  exit_if_not_set CLUSTER_ID
   exit_if_not_set KAFKA_NODE_ID
-#  exit_if_not_set
-  #check for node id, controller connection string
+  exit_if_not_set KAFKA_CONTROLLER_QUORUM_VOTERS
 fi
+
 
 CONFIG_DIR=/etc/confluent/kafka
 mkdir -p $CONFIG_DIR
 
 SERVER_PROPERTIES_PATH=$CONFIG_DIR/server.properties
 
+
 # TODO: ensure the LOG_DIRS is set -- is this necessary?
-ub envToProp KAFKA > $SERVER_PROPERTIES_PATH
-ub envToPropKeepPrefix CONFLUENT >> $SERVER_PROPERTIES_PATH
+# TODO: KAFKA_DATA_DIR?
 
 
-#TODO: ensure kafka-storage gets called only when we are in KRaft-mode
-/usr/bin/kafka-storage format --ignore-formatted -t $CLUSTER_ID -c $SERVER_PROPERTIES_PATH
+ub propertiesFromEnv /etc/confluent/docker/kafkaConfigSpec.json > $SERVER_PROPERTIES_PATH
+ub formatLogger /etc/confluent/docker/log4j.properties.template /etc/confluent/docker/loggerDefaults.json KAFKA_LOG4J_ROOT_LOGLEVEL KAFKA_LOG4J_LOGGERS > /etc/kafka/log4j.properties
+
+# TODO: format tools logger
+
+if [[ -z $LEGACY_MODE ]]; then
+  /usr/bin/kafka-storage format --ignore-formatted -t $CLUSTER_ID -c $SERVER_PROPERTIES_PATH
+fi
+
 /usr/bin/kafka-server-start $SERVER_PROPERTIES_PATH

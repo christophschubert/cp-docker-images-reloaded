@@ -4,4 +4,6 @@ cd  base-image
 ./build.sh
 cd ..
 
-docker build -t kmin .
+cd kafka
+./build.sh
+cd ..

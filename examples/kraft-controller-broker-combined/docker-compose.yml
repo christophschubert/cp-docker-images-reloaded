@@ -1,12 +1,13 @@
 version: "3.8"
 services:
   kafka:
-    image: kmin
+    image: ${CP_KAFKA_IMAGE}
     container_name: kafka
     hostname: kafka
     ports:
       - 9092:9092
     environment:
+      CLUSTER_ID: ${CLUSTER_ID}
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_NODE_ID: 1
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093

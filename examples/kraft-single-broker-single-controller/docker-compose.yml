@@ -1,12 +1,13 @@
-version: "3.3"
+version: "3.8"
 services:
   broker:
-    image: kmin
+    image: ${CP_KAFKA_IMAGE}
     container_name: broker
     hostname: broker
     ports:
       - 9092:9092
     environment:
+      CLUSTER_ID: ${CLUSTER_ID}
       KAFKA_PROCESS_ROLES: broker
       KAFKA_NODE_ID: 11
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller:9093
@@ -20,10 +21,11 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
   controller:
-    image: kmin
+    image: ${CP_KAFKA_IMAGE}
     container_name: controller
     hostname: controller
     environment:
+      CLUSTER_ID: ${CLUSTER_ID}
       KAFKA_PROCESS_ROLES: controller
       KAFKA_NODE_ID: 1
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller:9093

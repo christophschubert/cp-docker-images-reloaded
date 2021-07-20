@@ -9,11 +9,10 @@ RUN rpm --import https://packages.confluent.io/rpm/6.2/archive.key && \
     microdnf install zulu11-jdk-headless --nodocs && \
     microdnf install confluent-kafka-6.2.0 && \
     microdnf clean all && \
-    rm -rf /tmp/*
+    rm -rf /tmp/* \
+    && mkdir -p /etc/confluent/docker
 
-COPY kraft-run.sh /kraft-run.sh
-COPY sample-log4j.properties /etc/kafka/log4j.properties
-COPY sample-tools-log4j.properties /etc/kafka/tools-log4j.properties
+COPY include/etc/confluent/docker /etc/confluent/docker
 
-CMD /kraft-run.sh
+CMD /etc/confluent/docker/run.sh
 
