@@ -15,8 +15,6 @@ printf "[Confluent.dist]\nname=Confluent repository (dist)\nbaseurl=https://pack
 ```
 (can use `microdnf repolist`) to check
 
-5XaoHTaXSLSOpkMcfbWFkg
-
 microdnf install java-1.8.0-openjdk-headless --nodocs
 microdnf install confluent-kafka-6.2.0
 
