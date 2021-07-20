@@ -1,0 +1,11 @@
+{
+  "prefixes": {
+    "SCHEMA_REGISTRY": false
+  },
+  "renamed": {
+  },
+  "excludes": [
+  ],
+  "defaults": {
+  }
+}
