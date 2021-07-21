@@ -103,7 +103,7 @@ func parse(spec ConfigSpec, environment map[string]string) map[string]string {
 }
 
 func printConfig(config map[string]string) {
-	fmt.Printf("# created by 'ub' from environment variables on %s", time.Now().String())
+	fmt.Printf("# created by 'ub' from environment variables on %s\n", time.Now().String())
 	// Go randomizes iterations over map by design. We want to sort properties by name to ease debugging.
 	sortedNames := make([]string, 0, len(config))
 	for name := range config {
@@ -186,7 +186,7 @@ func formatLogger(templatePath string, spec LoggerSpec) {
 
 func checkDeprecate(deprecatedEnv string, deprecatedProperty string, replacement string) {
 	if _, found := os.LookupEnv(deprecatedEnv); found {
-		fmt.Printf("'%s' is deprecated. Use '%s' instead.", deprecatedProperty, replacement)
+		fmt.Printf("'%s' is deprecated. Use '%s' instead.\n", deprecatedProperty, replacement)
 		os.Exit(1)
 	}
 }

@@ -27,8 +27,8 @@ mkdir -p $CONFIG_DIR
 
 PROPERTIES_PATH=$CONFIG_DIR/schema-registry.properties
 
-ub propertiesFromEnv /etc/confluent/docker/schemaRegistryConfigSpec.json > $PROPERTIES_PATH
+ub propertiesFromEnvPrefix SCHEMA_REGISTRY > $PROPERTIES_PATH
+ub propertiesFromEnvPrefix SCHEMA_REGISTRY_KAFKASTORE > $CONFIG_DIR/admin.properties
 #ub formatLogger /etc/confluent/docker/log4j.properties.template /etc/confluent/docker/loggerDefaults.json KAFKA_LOG4J_ROOT_LOGLEVEL KAFKA_LOG4J_LOGGERS > /etc/kafka/log4j.properties
-
 
 /usr/bin/schema-registry-start $PROPERTIES_PATH
