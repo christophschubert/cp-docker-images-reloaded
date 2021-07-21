@@ -2,12 +2,23 @@ FROM cp-base-reloaded
 
 EXPOSE 9092
 
+USER root
+
+ENV COMPONENT=kafka
+ENV CONFLUENT_VERSION=6.2.0
 RUN rpm --import https://packages.confluent.io/rpm/6.2/archive.key \
     && printf "[Confluent.dist]\nname=Confluent repository (dist)\nbaseurl=https://packages.confluent.io/rpm/6.2/$releasever\ngpgcheck=1\ngpgkey=https://packages.confluent.io/rpm/6.2/archive.key\nenabled=1\n\n[Confluent]\nname=Confluent repository\nbaseurl=https://packages.confluent.io/rpm/6.2\ngpgcheck=1\ngpgkey=https://packages.confluent.io/rpm/6.2/archive.key\nenabled=1\n" > /etc/yum.repos.d/confluent.repo \
-    && microdnf --nodocs install confluent-kafka-6.2.0 \
+    && microdnf --nodocs install confluent-${COMPONENT}-${CONFLUENT_VERSION} \
     && microdnf clean all \
-    && rm -rf /tmp/*
-COPY include/etc/confluent/docker /etc/confluent/docker
+    && rm -rf /tmp/* \
+    && echo "===> Setting up ${COMPONENT} dirs" \
+    && mkdir -p /var/lib/${COMPONENT}/data /etc/${COMPONENT}/secrets \
+    && chmod -R ag+w /etc/kafka /var/lib/${COMPONENT}/data /etc/${COMPONENT}/secrets \
+    && chown -R appuser:appuser /var/log/kafka /var/log/confluent /var/lib/kafka /var/lib/zookeeper /etc/${COMPONENT}/secrets
+
+COPY --chown=appuser:appuser include/etc/confluent/docker /etc/confluent/docker
+
+USER appuser
 
 CMD /etc/confluent/docker/run.sh
 

@@ -6,9 +6,20 @@ import (
 	"io/ioutil"
 	"os"
 	"regexp"
+	"sort"
 	"strings"
 	"text/template"
+	"time"
 )
+
+func ensureAtLeastOne(keys []string) bool {
+	for _, varName := range keys {
+		if _, found := os.LookupEnv(varName); found {
+			return true
+		}
+	}
+	return false
+}
 
 /**
 Converts an environment variable name to a property-name according to the following rules:
@@ -30,11 +41,10 @@ func replaceUnderscores(s string) string {
 	return strings.ReplaceAll(s, "_", ".")
 }
 
-
 type ConfigSpec struct {
-	Prefixes map[string]bool `json:"prefixes"`
-	Excludes []string `json:"excludes"`
-	Renamed map[string]string `json:"renamed"`
+	Prefixes map[string]bool   `json:"prefixes"`
+	Excludes []string          `json:"excludes"`
+	Renamed  map[string]string `json:"renamed"`
 	Defaults map[string]string `json:"defaults"`
 }
 
@@ -65,7 +75,6 @@ func GetEnvironment() map[string]string {
 	return ListToMap(os.Environ())
 }
 
-
 func parse(spec ConfigSpec, environment map[string]string) map[string]string {
 	config := make(map[string]string)
 	for key, value := range spec.Defaults {
@@ -93,19 +102,25 @@ func parse(spec ConfigSpec, environment map[string]string) map[string]string {
 	return config
 }
 
-func PrintConfig(config map[string]string) {
-	for k, v := range config {
-		fmt.Printf("%s=%s\n", k, v)
+func printConfig(config map[string]string) {
+	fmt.Printf("# created by 'ub' from environment variables on %s", time.Now().String())
+	// Go randomizes iterations over map by design. We want to sort properties by name to ease debugging.
+	sortedNames := make([]string, 0, len(config))
+	for name := range config {
+		sortedNames = append(sortedNames, name)
+	}
+	sort.Strings(sortedNames)
+	for _, n := range sortedNames {
+		fmt.Printf("%s=%s\n", n, config[n])
 	}
 }
-
 
 func listenersFromAdvertisedListeners(listeners string) string {
 	re := regexp.MustCompile("://(.*?):")
 	return re.ReplaceAllString(listeners, "://0.0.0.0:")
 }
 
-func printProperty(pathToSpec string)  {
+func printProperty(pathToSpec string) {
 	jsonFile, err := os.Open(pathToSpec)
 	if err != nil {
 		panic(err)
@@ -122,15 +137,13 @@ func printProperty(pathToSpec string)  {
 		panic(err3)
 	}
 	config := parse(spec, GetEnvironment())
-	PrintConfig(config)
+	printConfig(config)
 }
-
 
 type LoggerSpec struct {
-	RootLevel string `json:"rootLevel"`
-	Loggers map[string]string `json:"loggers"`
+	RootLevel string            `json:"rootLevel"`
+	Loggers   map[string]string `json:"loggers"`
 }
-
 
 func buildLoggerSpec(defaultsPath string, rootLoggerEnvVar string, levelEnvVar string) LoggerSpec {
 	jsonFile, err := os.Open(defaultsPath)
@@ -169,19 +182,43 @@ func formatLogger(templatePath string, spec LoggerSpec) {
 	t := template.Must(template.New("tmpl").Parse(string(bytes)))
 
 	t.Execute(os.Stdout, spec)
-
 }
 
+func checkDeprecate(deprecatedEnv string, deprecatedProperty string, replacement string) {
+	if _, found := os.LookupEnv(deprecatedEnv); found {
+		fmt.Printf("'%s' is deprecated. Use '%s' instead.", deprecatedProperty, replacement)
+		os.Exit(1)
+	}
+}
 
 func main() {
+	if os.Args[1] == "check-deprecated" {
+		checkDeprecate(os.Args[2], os.Args[3], os.Args[4])
+	}
+	// used, eg, for schema registry  and all admin-properties
+	if os.Args[1] == "propertiesFromEnvPrefix" {
+		envPrefix := os.Args[2]
+		spec := ConfigSpec{
+			Prefixes: map[string]bool{envPrefix: false},
+			Excludes: []string{},
+			Renamed:  map[string]string{},
+			Defaults: map[string]string{},
+		}
+		config := parse(spec, GetEnvironment())
+		printConfig(config)
+	}
 	if os.Args[1] == "propertiesFromEnv" {
 		printProperty(os.Args[2])
 	}
 	if os.Args[1] == "formatLogger" {
 		formatLogger(os.Args[2], buildLoggerSpec(os.Args[3], os.Args[4], os.Args[5]))
 	}
-
 	if os.Args[1] == "listeners" {
 		fmt.Println(listenersFromAdvertisedListeners(os.Args[2]))
+	}
+	if os.Args[1] == "ensureAtLeastOne" {
+		if !ensureAtLeastOne(os.Args[2:]) {
+			os.Exit(1)
+		}
 	}
 }

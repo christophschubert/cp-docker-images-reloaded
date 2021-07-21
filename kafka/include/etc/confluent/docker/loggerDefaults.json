@@ -4,8 +4,8 @@
     "log4j.logger.kafka": "INFO",
     "log4j.logger.kafka.network.RequestChannel$": "WARN",
     "log4j.logger.kafka.producer.async.DefaultEventHandler": "DEBUG",
-    "log4j.logger.kafka.request.logger": "DEBUG",
-    "log4j.logger.kafka.controller": "TRACE",
+    "log4j.logger.kafka.request.logger": "INFO",
+    "log4j.logger.kafka.controller": "INFO",
     "log4j.logger.kafka.log.LogCleaner": "INFO",
     "log4j.logger.kafka.change.logger": "TRACE",
     "log4j.logger.kafka.authorizer.logger": "WARN"

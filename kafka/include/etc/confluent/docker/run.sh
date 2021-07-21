@@ -1,7 +1,8 @@
 #!/bin/bash
 
 echo "Checking for required configuration settings..."
-
+#fail when a subprogram fails
+set -e
 
 function exit_if_not_set {
   param=$1
@@ -12,20 +13,28 @@ function exit_if_not_set {
   fi
 }
 
-
 # check whether we are running in KRAFT mode (this is done using the process.roles property)
 if [[ -z "$KAFKA_PROCESS_ROLES" ]]
 then
   echo "> configuring ZooKeeper mode"
   exit_if_not_set KAFKA_ZOOKEEPER_CONNECT
   LEGACY_MODE="true"
+  exit_if_not_set KAFKA_ADVERTISED_LISTENERS
+  # TODO: check whether this works
+  export : "${KAFKA_LISTENERS:=$(ub listeners "$KAFKA_ADVERTISED_LISTENERS")}"
 else
   echo "> configuring KRaft controller mode"
   # as the zookeeper setting will eventually go away, we take KRaft as default
   exit_if_not_set CLUSTER_ID
   exit_if_not_set KAFKA_NODE_ID
   exit_if_not_set KAFKA_CONTROLLER_QUORUM_VOTERS
+  # TODO: ensure advertised listeners for non-controller nodes!
 fi
+
+ub check-deprecate KAFKA_ADVERTISED_HOST advertised.host KAFKA_ADVERTISED_LISTENERS
+ub check-deprecate KAFKA_ADVERTISED_PORT advertised.port KAFKA_ADVERTISED_LISTENERS
+ub check-deprecate KAFKA_HOST host KAFKA_ADVERTISED_LISTENERS
+ub check-deprecate KAFKA_PORT port KAFKA_ADVERTISED_LISTENERS
 
 
 CONFIG_DIR=/etc/confluent/kafka
