@@ -1,18 +1,10 @@
 #!/bin/bash
 
+# include helper functions
+. /etc/confluent/docker/bash-functions.sh
+
+
 echo "Checking for required configuration settings..."
-#fail when a subprogram fails
-set -e
-
-function exit_if_not_set {
-  param=$1
-  if [[ -z ${!param} ]]
-  then
-    echo "  Required environment variable $param not set"
-    exit 1
-  fi
-}
-
 # check whether we are running in KRAFT mode (this is done using the process.roles property)
 if [[ -z "$KAFKA_PROCESS_ROLES" ]]
 then
@@ -37,15 +29,13 @@ ub check-deprecate KAFKA_HOST host KAFKA_ADVERTISED_LISTENERS
 ub check-deprecate KAFKA_PORT port KAFKA_ADVERTISED_LISTENERS
 
 
+# TODO: ensure the LOG_DIRS is set -- is this necessary?
+# TODO: KAFKA_DATA_DIR?
+
 CONFIG_DIR=/etc/confluent/kafka
 mkdir -p $CONFIG_DIR
 
 SERVER_PROPERTIES_PATH=$CONFIG_DIR/server.properties
-
-
-# TODO: ensure the LOG_DIRS is set -- is this necessary?
-# TODO: KAFKA_DATA_DIR?
-
 
 ub propertiesFromEnv /etc/confluent/docker/kafkaConfigSpec.json > $SERVER_PROPERTIES_PATH
 ub formatLogger /etc/confluent/docker/log4j.properties.template /etc/confluent/docker/loggerDefaults.json KAFKA_LOG4J_ROOT_LOGLEVEL KAFKA_LOG4J_LOGGERS > /etc/kafka/log4j.properties

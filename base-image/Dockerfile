@@ -31,6 +31,8 @@ RUN rpm --install https://cdn.azul.com/zulu/bin/zulu-repo-1.0.0-1.noarch.rpm \
 
 ENV CUB_CLASSPATH=/usr/share/java/cp-base-new/*
 # avoid having to build cp-base package (contains 'utility belt' functions)
+COPY include/etc/confluent/docker /etc/confluent/docker
+
 COPY --from=java-builder /usr/share/java/cp-base-new /usr/share/java/cp-base-new
 
 COPY --from=go-builder /build/ub /usr/bin
