@@ -13,6 +13,17 @@ function exit_if_not_set {
     exit 1
   fi
 }
+# Usage
+# kafka_ready numBrokers timeout bootstrapServer pathToConfig
+function kafka_ready {
+  #TODO: make values configurable via env vars
+  if java $KAFKA_OPTS -cp "$CUB_CLASSPATH" "io.confluent.admin.utils.cli.KafkaReadyCommand" --bootstrap-servers $3 --config $4 $1 $2
+  then
+    echo "Kafka ready: found at least $1 broker(s) at $3"
+  else
+    exit 1
+  fi
+}
 # check for required properties
 exit_if_not_set SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS
 exit_if_not_set SCHEMA_REGISTRY_HOST_NAME
@@ -31,4 +42,5 @@ ub propertiesFromEnvPrefix SCHEMA_REGISTRY > $PROPERTIES_PATH
 ub propertiesFromEnvPrefix SCHEMA_REGISTRY_KAFKASTORE > $CONFIG_DIR/admin.properties
 #ub formatLogger /etc/confluent/docker/log4j.properties.template /etc/confluent/docker/loggerDefaults.json KAFKA_LOG4J_ROOT_LOGLEVEL KAFKA_LOG4J_LOGGERS > /etc/kafka/log4j.properties
 
+kafka_ready 1 20000 $SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS $CONFIG_DIR/admin.properties
 /usr/bin/schema-registry-start $PROPERTIES_PATH

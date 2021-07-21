@@ -11,8 +11,6 @@ RUN go build -ldflags="-w -s" -o ub .
 FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
 
 ENV LANG="C.UTF-8"
-ENV CUB_CLASSPATH='"/usr/share/java/cp-base-new/*"'
-
 RUN rpm --install https://cdn.azul.com/zulu/bin/zulu-repo-1.0.0-1.noarch.rpm \
     && microdnf install --nodocs openssl \
                              wget \
@@ -31,6 +29,7 @@ RUN rpm --install https://cdn.azul.com/zulu/bin/zulu-repo-1.0.0-1.noarch.rpm \
 
 # microdnf seems to lack an 'check-update' option -- TODO: is this critical?
 
+ENV CUB_CLASSPATH=/usr/share/java/cp-base-new/*
 # avoid having to build cp-base package (contains 'utility belt' functions)
 COPY --from=java-builder /usr/share/java/cp-base-new /usr/share/java/cp-base-new
 
