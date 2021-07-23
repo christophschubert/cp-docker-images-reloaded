@@ -14,6 +14,11 @@ Currently, the `build.sh` script can be used to build base and Kafka node images
 
 The `examples` folder contains `docker compose` based examples using the new images.
 
+## Configuration
+
+Confluent Platform components ultimately require a Java properties file. During startup of the container, this config file will be generated from the environment variables passed to the container.
+- easier to set defaults in ConfigSpec
+
 ## Implementation notes
 
 All components run under a user `appuser`
