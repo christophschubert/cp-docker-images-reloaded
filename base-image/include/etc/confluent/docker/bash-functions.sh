@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 #fail when a subprogram fails
-set -e
 
+set -e
 # Usage:
 function exit_if_not_set {
   param=$1
@@ -10,6 +10,16 @@ function exit_if_not_set {
   then
     echo "  Required environment variable $param not set"
     exit 1
+  fi
+}
+
+function warn_jmx_rmi_port {
+  param=$1
+  RMI_PORT="com.sun.management.jmxremote.rmi.port"
+  if [[ -n ${!param} ]]; then
+    if [[ ! ${!param} == *"$RMI_PORT"* ]]; then
+      echo "${param} should contain '$RMI_PORT' property. It is required for accessing the JMX metrics externally."
+    fi
   fi
 }
 
