@@ -1,0 +1,28 @@
+plugins {
+    // Apply the application plugin to add support for building a CLI application in Java.
+    id 'application'
+}
+
+repositories {
+    // Use Maven Central for resolving dependencies.
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1'
+
+
+    implementation 'org.apache.kafka:kafka-clients:2.8.0'
+    implementation 'org.slf4j:slf4j-log4j12:1.7.30' //TODO: check latest version
+}
+
+
+application {
+    // Define the main class for the application.
+    mainClass = 'io.confluent.admin.kafka.health.KafkaCheck'
+}
+
+tasks.named('test') {
+    // Use JUnit Platform for unit tests.
+    useJUnitPlatform()
+}

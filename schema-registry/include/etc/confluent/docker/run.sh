@@ -4,7 +4,7 @@
 . /etc/confluent/docker/bash-functions.sh
 
 
-echo "Checking for required configuration settings..."
+log_status "Checking for required configuration settings"
 exit_if_not_set SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS
 exit_if_not_set SCHEMA_REGISTRY_HOST_NAME
 
@@ -22,5 +22,7 @@ ub propertiesFromEnvPrefix SCHEMA_REGISTRY > $PROPERTIES_PATH
 ub propertiesFromEnvPrefix SCHEMA_REGISTRY_KAFKASTORE > $CONFIG_DIR/admin.properties
 #ub formatLogger /etc/confluent/docker/log4j.properties.template /etc/confluent/docker/loggerDefaults.json KAFKA_LOG4J_ROOT_LOGLEVEL KAFKA_LOG4J_LOGGERS > /etc/kafka/log4j.properties
 
-kafka_ready 1 20000 $SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS $CONFIG_DIR/admin.properties
+log_status "Checking connection to Kafka brokers"
+kafka_ready 1 20000 $CONFIG_DIR/admin.properties
+log_status "Starting schema registry"
 /usr/bin/schema-registry-start $PROPERTIES_PATH

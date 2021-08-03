@@ -4,7 +4,7 @@
 . /etc/confluent/docker/bash-functions.sh
 
 
-echo "Checking for required configuration settings..."
+log_status "Checking for required configuration settings"
 # check whether we are running in KRAFT mode (this is done using the process.roles property)
 if [[ -z "$KAFKA_PROCESS_ROLES" ]]
 then
@@ -45,5 +45,5 @@ ub formatLogger /etc/confluent/docker/log4j.properties.template /etc/confluent/d
 if [[ -z $LEGACY_MODE ]]; then
   /usr/bin/kafka-storage format --ignore-formatted -t $CLUSTER_ID -c $SERVER_PROPERTIES_PATH
 fi
-
+log_status "Starting Kafka node"
 /usr/bin/kafka-server-start $SERVER_PROPERTIES_PATH
