@@ -2,6 +2,7 @@
 
 . /etc/confluent/docker/bash-functions.sh
 
+log_status "Checking for required configuration settings"
 exit_if_not_set CONNECT_BOOTSTRAP_SERVERS
 exit_if_not_set CONNECT_GROUP_ID
 exit_if_not_set CONNECT_CONFIG_STORAGE_TOPIC
@@ -17,13 +18,14 @@ ub propertiesFromEnvPrefix CONNECT > $PROPERTIES_PATH
 
 #TODO: configure Log4J
 
-echo "===> check Kafka is healthy"
+log_status "Checking connection to Kafka brokers"
 # TODO: wouldn't is make more sense to check the configured replication factors instead of hardcoding 1?
-kafka_ready 1 40000 $CONNECT_BOOTSTRAP_SERVERS $PROPERTIES_PATH
+kafka_ready 1 40000 $PROPERTIES_PATH
 
 # TODO: setup JMX
 
 if [ -z "$CLASSPATH" ]; then
   export CLASSPATH="/etc/kafka-connect/jars/*"
 fi
+log_status "Starting Kafka connect"
 connect-distributed $PROPERTIES_PATH

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 #fail when a subprogram fails
-
 set -e
+
 # Usage:
 function exit_if_not_set {
   param=$1
@@ -24,13 +24,16 @@ function warn_jmx_rmi_port {
 }
 
 # Usage
-# kafka_ready numBrokers timeout bootstrapServer pathToConfig
+# kafka_ready numBrokers timeout pathToConfig
 function kafka_ready {
-  #TODO: make values configurable via env vars
-  if java $KAFKA_OPTS -cp "$CUB_CLASSPATH" "io.confluent.admin.utils.cli.KafkaReadyCommand" --bootstrap-servers $3 --config $4 $1 $2
+  if java $KAFKA_OPTS -cp "$CUB_CLASSPATH" "io.confluent.admin.kafka.health.KafkaReady"  $1 $2 $3
   then
-    echo "Kafka ready: found at least $1 broker(s) at $3"
+    echo "Kafka ready: found at least $1 broker(s)."
   else
     exit 1
   fi
+}
+
+function log_status {
+  echo "===> ${1}..."
 }

@@ -8,4 +8,4 @@
  */
 
 rootProject.name = 'readyness-checks'
-include('app')
+include('kafka-ready')
