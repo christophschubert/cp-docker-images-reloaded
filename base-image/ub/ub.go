@@ -12,6 +12,7 @@ import (
 	"time"
 )
 
+// ensureAtLeastOne returns true if at least on of the keys exists as an env var, false otherwise.
 func ensureAtLeastOne(keys []string) bool {
 	for _, varName := range keys {
 		if _, found := os.LookupEnv(varName); found {
@@ -21,14 +22,12 @@ func ensureAtLeastOne(keys []string) bool {
 	return false
 }
 
-/**
-Converts an environment variable name to a property-name according to the following rules:
-- a single underscore (_) is replaced with a .
-- a double underscore (__) is replaced with a single underscore
-- a triple underscore (___) is replaced with a dash
-Moreover, the whole string is converted to lower-case.
-The behavior of sequences of four or more underscores is undefined.
-*/
+// convertKey Converts an environment variable name to a property-name according to the following rules:
+// - a single underscore (_) is replaced with a .
+// - a double underscore (__) is replaced with a single underscore
+// - a triple underscore (___) is replaced with a dash
+// Moreover, the whole string is converted to lower-case.
+// The behavior of sequences of four or more underscores is undefined.
 func convertKey(key string) string {
 	re := regexp.MustCompile("[^_]_[^_]")
 	singleReplaced := re.ReplaceAllStringFunc(key, replaceUnderscores)
@@ -36,7 +35,7 @@ func convertKey(key string) string {
 	return strings.ToLower(strings.ReplaceAll(singleTripleReplaced, "__", "_"))
 }
 
-//helper function to replace every underscore '_' by a dot '.'
+//replaceUnderscores replaces every underscore '_' by a dot '.'
 func replaceUnderscores(s string) string {
 	return strings.ReplaceAll(s, "_", ".")
 }
@@ -192,11 +191,11 @@ func checkDeprecate(deprecatedEnv string, deprecatedProperty string, replacement
 }
 
 func main() {
-	if os.Args[1] == "check-deprecated" {
+	switch os.Args[1] {
+	case "check-deprecated":
 		checkDeprecate(os.Args[2], os.Args[3], os.Args[4])
-	}
-	// used, eg, for schema registry  and all admin-properties
-	if os.Args[1] == "propertiesFromEnvPrefix" {
+	case "propertiesFromEnvPrefix":
+		// used, eg, for schema registry  and all admin-properties
 		envPrefix := os.Args[2]
 		spec := ConfigSpec{
 			Prefixes: map[string]bool{envPrefix: false},
@@ -206,19 +205,18 @@ func main() {
 		}
 		config := parse(spec, GetEnvironment())
 		printConfig(config)
-	}
-	if os.Args[1] == "propertiesFromEnv" {
+	case "propertiesFromEnv":
 		printProperty(os.Args[2])
-	}
-	if os.Args[1] == "formatLogger" {
+	case "formatLogger":
 		formatLogger(os.Args[2], buildLoggerSpec(os.Args[3], os.Args[4], os.Args[5]))
-	}
-	if os.Args[1] == "listeners" {
+	case "listeners":
 		fmt.Println(listenersFromAdvertisedListeners(os.Args[2]))
-	}
-	if os.Args[1] == "ensureAtLeastOne" {
+	case "ensureAtLeastOne":
 		if !ensureAtLeastOne(os.Args[2:]) {
 			os.Exit(1)
 		}
+	default:
+		fmt.Println(os.Args[0] + ": Unknown option: " + os.Args[1])
+		os.Exit(1)
 	}
 }

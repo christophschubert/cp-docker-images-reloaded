@@ -23,10 +23,10 @@ else
   # TODO: ensure advertised listeners for non-controller nodes!
 fi
 
-ub check-deprecate KAFKA_ADVERTISED_HOST advertised.host KAFKA_ADVERTISED_LISTENERS
-ub check-deprecate KAFKA_ADVERTISED_PORT advertised.port KAFKA_ADVERTISED_LISTENERS
-ub check-deprecate KAFKA_HOST host KAFKA_ADVERTISED_LISTENERS
-ub check-deprecate KAFKA_PORT port KAFKA_ADVERTISED_LISTENERS
+ub check-deprecated KAFKA_ADVERTISED_HOST advertised.host KAFKA_ADVERTISED_LISTENERS
+ub check-deprecated KAFKA_ADVERTISED_PORT advertised.port KAFKA_ADVERTISED_LISTENERS
+ub check-deprecated KAFKA_HOST host KAFKA_ADVERTISED_LISTENERS
+ub check-deprecated KAFKA_PORT port KAFKA_ADVERTISED_LISTENERS
 
 
 # TODO: ensure the LOG_DIRS is set -- is this necessary?
