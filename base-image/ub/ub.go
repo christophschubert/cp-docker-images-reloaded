@@ -47,6 +47,7 @@ type ConfigSpec struct {
 	Defaults map[string]string `json:"defaults"`
 }
 
+//Contains returns true if slice contains element, and false otherwise.
 func Contains(slice []string, element string) bool {
 	for _, v := range slice {
 		if v == element {
@@ -56,6 +57,7 @@ func Contains(slice []string, element string) bool {
 	return false
 }
 
+//ListToMap splits each and entry of the kvList argument at '=' into a key/value pair and returns a map of all the k/v pair thus obtained.
 func ListToMap(kvList []string) map[string]string {
 	m := make(map[string]string)
 	for _, l := range kvList {
@@ -70,11 +72,14 @@ func ListToMap(kvList []string) map[string]string {
 func KvStringToMap(kvString string, sep string) map[string]string {
 	return ListToMap(strings.Split(kvString, sep))
 }
+
+//GetEnvironment returns the current environment as a map.
 func GetEnvironment() map[string]string {
 	return ListToMap(os.Environ())
 }
 
-func parse(spec ConfigSpec, environment map[string]string) map[string]string {
+//BuildProperties creates a map suitable to be output as Java properties from a ConfigSpec and a map representing an environment.
+func BuildProperties(spec ConfigSpec, environment map[string]string) map[string]string {
 	config := make(map[string]string)
 	for key, value := range spec.Defaults {
 		config[key] = value
@@ -135,7 +140,7 @@ func printProperty(pathToSpec string) {
 	if err3 != nil {
 		panic(err3)
 	}
-	config := parse(spec, GetEnvironment())
+	config := BuildProperties(spec, GetEnvironment())
 	printConfig(config)
 }
 
@@ -203,7 +208,7 @@ func main() {
 			Renamed:  map[string]string{},
 			Defaults: map[string]string{},
 		}
-		config := parse(spec, GetEnvironment())
+		config := BuildProperties(spec, GetEnvironment())
 		printConfig(config)
 	case "propertiesFromEnv":
 		printProperty(os.Args[2])
