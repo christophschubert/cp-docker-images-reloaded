@@ -11,3 +11,7 @@ cd ..
 cd schema-registry
 ./build.sh
 cd ..
+
+cd server
+./build.sh
+cd ..
